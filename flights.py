@@ -1,5 +1,4 @@
 import pandas as pd
-import os
 from datetime import datetime
 import streamlit as st
 
@@ -14,7 +13,6 @@ def calculate_rvalue_index(date, time):
     hour = int(time.split(":")[0])
     day_of_month = date_obj.day
     rvalue_index = (day_of_month - 1) * 24 + hour + 10 # 0-based index
-    print(rvalue_index)
     return rvalue_index
 
 # Function to check flight conditions
@@ -23,31 +21,22 @@ def check_flight_conditions(month, date, time, user_inputs, required_attributes)
     failed_conditions = []
 
     for parameter, user_value in user_inputs.items():
-        # Load the CSV for the month and parameter
         data = load_data(month, parameter)
-
-        # print(data.columns)
         
         # Locate the row that matches all required attributes
         matched_row = data[
             (data["Airports"] == required_attributes["Airports"])
         ]
 
-
-
-        # Check if the matching row exists
-        # print("matched row: ", matched_row)
-
         if matched_row.empty:
             failed_conditions.append(parameter)
             return f"Data not found for the given attributes: {', '.join(failed_conditions)}"
 
         # Get threshold value for the specific time
-        threshold = matched_row.iloc[0, rvalue_index]  # Adjust for the rvalue columns
+        threshold = matched_row.iloc[0, rvalue_index]  
         
         # Skip check if user_value is None
         if user_value is not None and user_value <= threshold:
-            print(f"Parameter: {parameter}, User Value: {user_value}, Threshold: {threshold}")
             failed_conditions.append(parameter)
 
     # Return result
@@ -61,14 +50,6 @@ st.title("Flight Takeoff Predictor")
 # Collect required attribute inputs as strings
 required_attributes = {
     "Airports": st.text_input("Airport"),
-    "General To": st.text_input("General To"),
-    "Type": st.text_input("Type"),
-    "Latitude(d": st.text_input("Latitude"),
-    "Latitude_1": st.text_input("Latitude_1"),
-    "Longitude(": st.text_input("Longitude"),
-    "Longitud_1": st.text_input("Longitude_1"),
-    "Altitudes(": st.text_input("Altitude"),
-    "Role": st.text_input("Role")
 }
 
 # Select month, date, and time
